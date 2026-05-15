@@ -1,20 +1,3 @@
-### Ingest alert
-### 202 Accepted
-POST http://localhost:8080/v1/integrations/demo-key/alerts
-Content-Type: application/json
-
-{
-  "external_id": "alert-001",
-  "service": "payments",
-  "environment": "prod",
-  "severity": "critical",
-  "name": "High error rate",
-  "message": "5xx rate is above threshold",
-  "dedup_key": "payments-prod-high-error-rate"
-}
-
-###
-
 ### Invalid severity
 ### 422 Unprocessable Entity
 POST http://localhost:8080/v1/integrations/demo-key/alerts

@@ -6,9 +6,12 @@ import (
 
 	"github.com/labstack/echo/v5"
 	alertsHttp "github.com/tbikbulatov/go-pulseops/internal/alert/delivery/http"
+	alertPostgres "github.com/tbikbulatov/go-pulseops/internal/alert/infrastructure/postgres"
 	"github.com/tbikbulatov/go-pulseops/internal/alert/usecase/ingestalert"
+	outboxPostgres "github.com/tbikbulatov/go-pulseops/internal/outbox/infrastructure/postgres"
 	"github.com/tbikbulatov/go-pulseops/internal/platform/config"
 	"github.com/tbikbulatov/go-pulseops/internal/platform/db"
+	"github.com/tbikbulatov/go-pulseops/internal/platform/transaction"
 	"github.com/tbikbulatov/go-pulseops/internal/platform/validation"
 )
 
@@ -41,7 +44,11 @@ func main() {
 		return c.JSON(http.StatusOK, map[string]any{"status": "ok"})
 	})
 
-	alertUsecase := &ingestalert.Usecase{}
+	txManager := transaction.NewGormManager(gorm)
+	alertRepo := alertPostgres.NewAlertRepository(gorm)
+	integrationRepo := alertPostgres.NewIntegrationRepository(gorm)
+	outboxRepo := outboxPostgres.NewOutboxRepository(gorm)
+	alertUsecase := ingestalert.NewUsecase(txManager, alertRepo, integrationRepo, outboxRepo)
 	alertHandler := alertsHttp.NewAlertHandler(validator, alertUsecase)
 	e.POST("/v1/integrations/:integration_key/alerts", alertHandler.IngestAlert)
 
