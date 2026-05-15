@@ -5,6 +5,8 @@ import (
 	"os"
 
 	"github.com/labstack/echo/v5"
+	alertsHttp "github.com/tbikbulatov/go-pulseops/internal/alert/delivery/http"
+	"github.com/tbikbulatov/go-pulseops/internal/alert/usecase/ingestalert"
 	"github.com/tbikbulatov/go-pulseops/internal/platform/config"
 	"github.com/tbikbulatov/go-pulseops/internal/platform/db"
 	"github.com/tbikbulatov/go-pulseops/internal/platform/validation"
@@ -12,7 +14,8 @@ import (
 
 func main() {
 	e := echo.New()
-	e.Validator = validation.NewValidator()
+	validator := validation.NewValidator()
+	e.Validator = validator
 
 	cfg, err := config.NewConfig()
 	if err != nil {
@@ -37,6 +40,10 @@ func main() {
 
 		return c.JSON(http.StatusOK, map[string]any{"status": "ok"})
 	})
+
+	alertUsecase := &ingestalert.Usecase{}
+	alertHandler := alertsHttp.NewAlertHandler(validator, alertUsecase)
+	e.POST("/v1/integrations/:integration_key/alerts", alertHandler.IngestAlert)
 
 	addr := ":" + cfg.App.Port
 	e.Logger.Info("starting pulseops api", "addr", addr)
