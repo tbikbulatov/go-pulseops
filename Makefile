@@ -1,4 +1,10 @@
-.PHONY: infra-up infra-down run-api run-worker run-grpc run-realtime test migrate
+.PHONY: infra-up infra-down run-api run-worker run-grpc run-realtime test migrate-up migrate-down migrate-status
+
+ifneq (,$(wildcard .env))
+include .env
+export
+endif
+POSTGRES_DSN := host=$(PG_HOST) port=$(PG_PORT) user=$(PG_USER) password=$(PG_PASSWORD) dbname=$(PG_DB) sslmode=$(PG_SSLMODE)
 
 infra-up:
 	docker compose up -d db redis redpanda
@@ -21,5 +27,14 @@ run-realtime:
 test:
 	go test ./...
 
-migrate:
-	@echo "migrations are not implemented yet"
+install-tools:
+	go install github.com/pressly/goose/v3/cmd/goose@latest
+
+migrate-up:
+	goose -dir migrations postgres "$(POSTGRES_DSN)" up
+
+migrate-down:
+	goose -dir migrations postgres "$(POSTGRES_DSN)" down
+
+migrate-status:
+	goose -dir migrations postgres "$(POSTGRES_DSN)" status
