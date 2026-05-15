@@ -11,6 +11,7 @@ import (
 type Config struct {
 	App      AppConfig
 	Postgres PostgresConfig
+	Kafka    KafkaConfig
 }
 
 func NewConfig() (*Config, error) {
@@ -58,4 +59,8 @@ func (pc *PostgresConfig) DSN() string {
 	return fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
 		pc.Host, pc.Port, pc.User, pc.Password, pc.DB, pc.SSLMode,
 	)
+}
+
+type KafkaConfig struct {
+	Brokers string `env:"KAFKA_BROKERS,required"`
 }
