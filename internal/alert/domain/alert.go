@@ -1,6 +1,10 @@
 package domain
 
-import "time"
+import (
+	"time"
+
+	"github.com/tbikbulatov/go-pulseops/internal/shared/domain/valueobject"
+)
 
 type Alert struct {
 	ID            string
@@ -8,7 +12,7 @@ type Alert struct {
 	ExternalID    string
 	Service       string
 	Environment   string
-	Severity      string
+	Severity      valueobject.Severity
 	Name          string
 	Message       string
 	DedupKey      string

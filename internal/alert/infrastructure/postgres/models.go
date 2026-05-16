@@ -4,6 +4,7 @@ import (
 	"time"
 
 	alertdomain "github.com/tbikbulatov/go-pulseops/internal/alert/domain"
+	"github.com/tbikbulatov/go-pulseops/internal/shared/domain/valueobject"
 )
 
 type IntegrationModel struct {
@@ -25,7 +26,7 @@ type AlertModel struct {
 	ExternalID    string `gorm:"column:external_id"`
 	Service       string
 	Environment   string
-	Severity      string
+	Severity      valueobject.Severity
 	Name          string
 	Message       string
 	DedupKey      string `gorm:"column:dedup_key"`

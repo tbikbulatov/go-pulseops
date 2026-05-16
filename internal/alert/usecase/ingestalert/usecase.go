@@ -7,6 +7,7 @@ import (
 
 	alertdomain "github.com/tbikbulatov/go-pulseops/internal/alert/domain"
 	outboxdomain "github.com/tbikbulatov/go-pulseops/internal/outbox/domain"
+	"github.com/tbikbulatov/go-pulseops/internal/shared/domain/valueobject"
 )
 
 type Usecase struct {
@@ -31,7 +32,10 @@ func NewUsecase(
 }
 
 func (uc *Usecase) Handle(ctx context.Context, cmd IngestAlertCommand) (IngestAlertResult, error) {
-	alert := uc.populateFromCmd(cmd)
+	alert, err := uc.populateFromCmd(cmd)
+	if err != nil {
+		return IngestAlertResult{}, err
+	}
 
 	if err := uc.tm.WithinTx(ctx, func(ctx context.Context) error {
 		intg, err := uc.intgRepo.FindActiveByKey(ctx, cmd.IntegrationKey)
@@ -58,17 +62,22 @@ func (uc *Usecase) Handle(ctx context.Context, cmd IngestAlertCommand) (IngestAl
 	return IngestAlertResult{AlertID: alert.ID, Status: "accepted"}, nil
 }
 
-func (uc Usecase) populateFromCmd(cmd IngestAlertCommand) alertdomain.Alert {
+func (uc Usecase) populateFromCmd(cmd IngestAlertCommand) (alertdomain.Alert, error) {
+	severity, err := valueobject.NewSeverity(cmd.Severity)
+	if err != nil {
+		return alertdomain.Alert{}, err
+	}
+
 	return alertdomain.Alert{
 		ExternalID:  cmd.ExternalID,
 		Service:     cmd.Service,
 		Environment: cmd.Environment,
-		Severity:    cmd.Severity,
+		Severity:    severity,
 		Name:        cmd.Name,
 		Message:     cmd.Message,
 		DedupKey:    cmd.DedupKey,
 		CreatedAt:   time.Now(),
-	}
+	}, nil
 }
 
 func (uc Usecase) createEvent(alert alertdomain.Alert) outboxdomain.Event {
