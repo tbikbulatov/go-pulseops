@@ -7,6 +7,7 @@ import (
 
 	alertdomain "github.com/tbikbulatov/go-pulseops/internal/alert/domain"
 	outboxdomain "github.com/tbikbulatov/go-pulseops/internal/outbox/domain"
+	platformkafka "github.com/tbikbulatov/go-pulseops/internal/platform/kafka"
 	"github.com/tbikbulatov/go-pulseops/internal/shared/domain/valueobject"
 )
 
@@ -96,7 +97,7 @@ func (uc Usecase) createEvent(alert alertdomain.Alert) outboxdomain.Event {
 	return outboxdomain.Event{
 		AggregateType: "alert",
 		AggregateID:   alert.ID,
-		EventType:     "alert.received",
+		EventType:     platformkafka.TopicAlertReceived,
 		Payload:       payload,
 		Status:        "pending",
 		Attempts:      0,

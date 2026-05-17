@@ -20,8 +20,10 @@ func run(args []string) error {
 	switch cmd {
 	case "api":
 		return runAPI(cfg)
-	case "publish-once":
-		return publishOutbox(cfg)
+	case "publish-alerts-once":
+		return publishAlertsOutbox(cfg)
+	case "incident-processor":
+		return runIncidentProcessor(cfg)
 	case "kafka-ping":
 		return runKafkaPing(cfg)
 	default:

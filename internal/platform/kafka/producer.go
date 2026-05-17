@@ -1,8 +1,6 @@
 package kafka
 
 import (
-	"strings"
-
 	"github.com/IBM/sarama"
 	"github.com/tbikbulatov/go-pulseops/internal/platform/config"
 )
@@ -15,8 +13,7 @@ func NewProducer(cfg config.KafkaConfig) (*Producer, error) {
 	saramaCfg := sarama.NewConfig()
 	saramaCfg.Producer.Return.Successes = true
 
-	brokers := strings.Split(cfg.Brokers, ",")
-	producer, err := sarama.NewSyncProducer(brokers, saramaCfg)
+	producer, err := sarama.NewSyncProducer(cfg.BrokerList(), saramaCfg)
 	if err != nil {
 		return nil, err
 	}

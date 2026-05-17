@@ -11,7 +11,7 @@ import (
 	"github.com/tbikbulatov/go-pulseops/internal/platform/kafka"
 )
 
-func publishOutbox(cfg *config.Config) error {
+func publishAlertsOutbox(cfg *config.Config) error {
 	ctx := context.Background()
 
 	producer, err := kafka.NewProducer(cfg.Kafka)

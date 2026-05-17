@@ -1,4 +1,4 @@
-.PHONY: infra-up infra-down run-api run-worker run-grpc run-realtime test migrate-up migrate-down migrate-status kafka-ping run-publish-once
+.PHONY: infra-up infra-down run-api run-worker run-grpc run-realtime test migrate-up migrate-down migrate-status kafka-ping run-publish-alerts-once run-incident-processor
 
 ifneq (,$(wildcard .env))
 include .env
@@ -15,8 +15,11 @@ infra-down:
 run-api:
 	go run ./cmd/pulseops api
 
-run-publish-once:
-	go run ./cmd/pulseops publish-once
+run-publish-alerts-once:
+	go run ./cmd/pulseops publish-alerts-once
+
+run-incident-processor:
+	go run ./cmd/pulseops incident-processor
 
 run-worker:
 	go run ./cmd/pulseops

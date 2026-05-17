@@ -62,5 +62,19 @@ func (pc *PostgresConfig) DSN() string {
 }
 
 type KafkaConfig struct {
-	Brokers string `env:"KAFKA_BROKERS,required"`
+	Brokers                string `env:"KAFKA_BROKERS,required"`
+	IncidentProcessorGroup string `env:"KAFKA_INCIDENT_PROCESSOR_GROUP" envDefault:"pulseops-incident-processor"`
+}
+
+func (kc KafkaConfig) BrokerList() []string {
+	parts := strings.Split(kc.Brokers, ",")
+	brokers := make([]string, 0, len(parts))
+	for _, part := range parts {
+		broker := strings.TrimSpace(part)
+		if broker != "" {
+			brokers = append(brokers, broker)
+		}
+	}
+
+	return brokers
 }

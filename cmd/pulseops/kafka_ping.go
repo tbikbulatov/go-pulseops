@@ -13,7 +13,7 @@ func runKafkaPing(cfg *config.Config) error {
 	defer producer.Close()
 
 	return producer.Publish(
-		"alert.received",
+		kafka.TopicAlertReceived,
 		"kafka-ping",
 		[]byte(`{"type":"kafka.ping","message":"hello redpanda"}`),
 	)
