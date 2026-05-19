@@ -8,12 +8,6 @@ import (
 	"github.com/tbikbulatov/go-pulseops/internal/shared/domain/valueobject"
 )
 
-const (
-	StatusOpen         = "open"
-	StatusAcknowledged = "acknowledged"
-	StatusResolved     = "resolved"
-)
-
 var (
 	ErrIncidentResolved        = errors.New("incident is resolved")
 	ErrIncidentAlreadyResolved = errors.New("incident is already resolved")
@@ -24,7 +18,7 @@ type Incident struct {
 	Service     string
 	Environment string
 	Severity    valueobject.Severity
-	Status      string
+	Status      Status
 	DedupKey    string
 	AlertCount  int
 	FirstSeenAt time.Time

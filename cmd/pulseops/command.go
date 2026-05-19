@@ -24,6 +24,8 @@ func run(args []string) error {
 		return publishAlertsOutbox(cfg)
 	case "incident-processor":
 		return runIncidentProcessor(cfg)
+	case "grpc":
+		return runGRPC(cfg)
 	case "kafka-ping":
 		return runKafkaPing(cfg)
 	default:

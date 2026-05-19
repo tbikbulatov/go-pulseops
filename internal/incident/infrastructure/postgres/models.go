@@ -13,7 +13,7 @@ type IncidentModel struct {
 	Service     string
 	Environment string
 	Severity    valueobject.Severity
-	Status      string
+	Status      incidentdomain.Status
 	DedupKey    string `gorm:"column:dedup_key"`
 	AlertCount  int    `gorm:"column:alert_count"`
 	FirstSeenAt time.Time

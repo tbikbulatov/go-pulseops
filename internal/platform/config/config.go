@@ -43,7 +43,8 @@ func loadDotenv() error {
 }
 
 type AppConfig struct {
-	Port string `env:"APP_HTTP_PORT,required"`
+	Port     string `env:"APP_HTTP_PORT,required"`
+	GRPCPort string `env:"APP_GRPC_PORT" envDefault:"50051"`
 }
 
 type PostgresConfig struct {

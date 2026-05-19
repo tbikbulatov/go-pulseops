@@ -1,0 +1,7 @@
+grpcurl \
+  -plaintext \
+  -import-path api/proto \
+  -proto pulseops/incident/v1/incident_query.proto \
+  -d '{"id": "ID"}' \
+  localhost:50051 \
+  pulseops.incident.v1.IncidentQueryService/GetIncident

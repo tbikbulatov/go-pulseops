@@ -27,7 +27,7 @@ func (r *IncidentRepository) FindActiveByServiceEnvDedupKey(
 
 	db := transaction.FromContext(ctx, r.db)
 	err := db.
-		Where("service = ? AND environment = ? AND dedup_key = ? AND status IN ?", service, environment, dedupKey, []string{
+		Where("service = ? AND environment = ? AND dedup_key = ? AND status IN ?", service, environment, dedupKey, []incidentdomain.Status{
 			incidentdomain.StatusOpen,
 			incidentdomain.StatusAcknowledged,
 		}).
