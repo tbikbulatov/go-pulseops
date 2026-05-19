@@ -8,7 +8,7 @@ import (
 	incidentdomain "github.com/tbikbulatov/go-pulseops/internal/incident/domain"
 )
 
-const ConsumerName = "incident-alert-received"
+const IdempotencyScope = "incident-alert-received"
 
 type Usecase struct {
 	tm           TransactionManager
@@ -38,7 +38,7 @@ func (uc *Usecase) Handle(ctx context.Context, cmd Command) error {
 }
 
 func (uc *Usecase) handle(ctx context.Context, cmd Command) error {
-	started, err := uc.deduplicator.TryStartProcessing(ctx, ConsumerName, cmd.MessageID)
+	started, err := uc.deduplicator.TryStartProcessing(ctx, IdempotencyScope, cmd.MessageID)
 	if err != nil {
 		return err
 	}

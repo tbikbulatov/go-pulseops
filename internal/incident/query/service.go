@@ -4,6 +4,7 @@ import (
 	"context"
 
 	incidentdomain "github.com/tbikbulatov/go-pulseops/internal/incident/domain"
+	"github.com/tbikbulatov/go-pulseops/internal/platform/apperror"
 )
 
 type Service struct {
@@ -16,7 +17,7 @@ func NewService(reader Reader) *Service {
 
 func (s *Service) GetIncident(ctx context.Context, q GetIncidentQuery) (incidentdomain.Incident, error) {
 	if q.ID == "" {
-		return incidentdomain.Incident{}, ErrInvalidQuery
+		return incidentdomain.Incident{}, apperror.Wrap(apperror.CodeInvalidArgument, ErrInvalidQuery)
 	}
 
 	incident, found, err := s.reader.GetByID(ctx, q.ID)
@@ -24,7 +25,7 @@ func (s *Service) GetIncident(ctx context.Context, q GetIncidentQuery) (incident
 		return incidentdomain.Incident{}, err
 	}
 	if !found {
-		return incidentdomain.Incident{}, ErrIncidentNotFound
+		return incidentdomain.Incident{}, apperror.Wrap(apperror.CodeNotFound, ErrIncidentNotFound)
 	}
 
 	return incident, nil
@@ -45,14 +46,14 @@ func normalizeFilter(q ListIncidentsQuery) (Filter, error) {
 		limit = ListItemsDefaultLimit
 	}
 	if limit < 0 || limit > ListItemsMaxLimit || q.Offset < 0 {
-		return Filter{}, ErrInvalidQuery
+		return Filter{}, apperror.Wrap(apperror.CodeInvalidArgument, ErrInvalidQuery)
 	}
 
 	var status *incidentdomain.Status
 	if q.Status != "" {
 		parsedStatus, err := incidentdomain.NewStatus(q.Status)
 		if err != nil {
-			return Filter{}, err
+			return Filter{}, apperror.Wrap(apperror.CodeInvalidArgument, err)
 		}
 		status = &parsedStatus
 	}

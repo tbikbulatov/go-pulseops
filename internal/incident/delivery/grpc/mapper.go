@@ -19,5 +19,6 @@ func incidentToProto(incident domain.Incident) *incidentv1.Incident {
 		LastSeenAt:  timestamppb.New(incident.LastSeenAt),
 		CreatedAt:   timestamppb.New(incident.CreatedAt),
 		UpdatedAt:   timestamppb.New(incident.UpdatedAt),
+		Version:     int32(incident.Version),
 	}
 }

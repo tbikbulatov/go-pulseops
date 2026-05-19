@@ -16,6 +16,7 @@ type IncidentModel struct {
 	Status      incidentdomain.Status
 	DedupKey    string `gorm:"column:dedup_key"`
 	AlertCount  int    `gorm:"column:alert_count"`
+	Version     int
 	FirstSeenAt time.Time
 	LastSeenAt  time.Time
 	CreatedAt   time.Time
@@ -35,6 +36,7 @@ func NewIncidentModel(incident incidentdomain.Incident) IncidentModel {
 		Status:      incident.Status,
 		DedupKey:    incident.DedupKey,
 		AlertCount:  incident.AlertCount,
+		Version:     incident.Version,
 		FirstSeenAt: incident.FirstSeenAt,
 		LastSeenAt:  incident.LastSeenAt,
 		CreatedAt:   incident.CreatedAt,
@@ -51,6 +53,7 @@ func (m IncidentModel) ToDomain() incidentdomain.Incident {
 		Status:      m.Status,
 		DedupKey:    m.DedupKey,
 		AlertCount:  m.AlertCount,
+		Version:     m.Version,
 		FirstSeenAt: m.FirstSeenAt,
 		LastSeenAt:  m.LastSeenAt,
 		CreatedAt:   m.CreatedAt,

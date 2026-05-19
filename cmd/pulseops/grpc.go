@@ -11,8 +11,10 @@ import (
 	incidentgrpc "github.com/tbikbulatov/go-pulseops/internal/incident/delivery/grpc"
 	incidentpg "github.com/tbikbulatov/go-pulseops/internal/incident/infrastructure/postgres"
 	"github.com/tbikbulatov/go-pulseops/internal/incident/query"
+	"github.com/tbikbulatov/go-pulseops/internal/incident/usecase/manageincident"
 	"github.com/tbikbulatov/go-pulseops/internal/platform/config"
 	"github.com/tbikbulatov/go-pulseops/internal/platform/db"
+	"github.com/tbikbulatov/go-pulseops/internal/platform/transaction"
 	"google.golang.org/grpc"
 )
 
@@ -30,12 +32,21 @@ func runGRPC(cfg *config.Config) error {
 	if err != nil {
 		return fmt.Errorf("init gorm: %w", err)
 	}
+
 	incidentReader := incidentpg.NewIncidentReader(gormDB)
 	querySrv := query.NewService(incidentReader)
-	incidentSrv := incidentgrpc.NewIncidentQueryServer(querySrv)
+	incidentQuerySrv := incidentgrpc.NewIncidentQueryServer(querySrv)
+
+	tm := transaction.NewGormManager(gormDB)
+	incidentRepo := incidentpg.NewIncidentRepository(gormDB)
+	eventRepo := incidentpg.NewIncidentEventRepository(gormDB)
+	ackUC := manageincident.NewAcknowledgeUsecase(tm, incidentRepo, eventRepo)
+	resolveUC := manageincident.NewResolveUsecase(tm, incidentRepo, eventRepo)
+	incidentCommandSrv := incidentgrpc.NewIncidentCommandService(ackUC, resolveUC)
 
 	srv := grpc.NewServer()
-	incidentv1.RegisterIncidentQueryServiceServer(srv, incidentSrv)
+	incidentv1.RegisterIncidentQueryServiceServer(srv, incidentQuerySrv)
+	incidentv1.RegisterIncidentCommandServiceServer(srv, incidentCommandSrv)
 
 	errCh := make(chan error, 1)
 	go func() {

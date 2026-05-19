@@ -1,4 +1,4 @@
-package processalert
+package manageincident
 
 import (
 	"context"
@@ -6,13 +6,8 @@ import (
 	"github.com/tbikbulatov/go-pulseops/internal/incident/domain"
 )
 
-type MessageDeduplicator interface {
-	TryStartProcessing(ctx context.Context, scope string, messageID string) (bool, error)
-}
-
 type IncidentRepository interface {
-	FindActiveByServiceEnvDedupKey(ctx context.Context, service, environment, dedupKey string) (domain.Incident, bool, error)
-	Create(ctx context.Context, incident domain.Incident) (domain.Incident, error)
+	FindByIDForUpdate(ctx context.Context, id string) (domain.Incident, bool, error)
 	Save(ctx context.Context, incident domain.Incident) error
 }
 

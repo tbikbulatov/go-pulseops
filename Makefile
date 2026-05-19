@@ -1,4 +1,4 @@
-.PHONY: infra-up infra-down run-api run-worker run-grpc run-realtime test migrate-up migrate-down migrate-status kafka-ping run-publish-alerts-once run-incident-processor install-tools proto
+.PHONY: infra-up infra-down run-api run-worker run-grpc run-realtime test migrate-up migrate-down migrate-status kafka-ping run-publish-alerts-once run-incident-processor install-tools proto proto-lint
 
 ifneq (,$(wildcard .env))
 include .env
@@ -7,9 +7,9 @@ endif
 POSTGRES_DSN := host=$(PG_HOST) port=$(PG_PORT) user=$(PG_USER) password=$(PG_PASSWORD) dbname=$(PG_DB) sslmode=$(PG_SSLMODE)
 
 GOOSE_VERSION := v3.27.1
+BUF_VERSION := v1.60.0
 PROTOC_GEN_GO_VERSION := v1.36.11
 PROTOC_GEN_GO_GRPC_VERSION := v1.6.2
-PROTO_SRC := api/proto/pulseops/incident/v1/incident_query.proto
 
 infra-up:
 	docker compose up -d db redis redpanda
@@ -42,6 +42,7 @@ kafka-ping:
 	go run ./cmd/pulseops kafka-ping
 
 install-tools:
+	go install github.com/bufbuild/buf/cmd/buf@$(BUF_VERSION)
 	go install github.com/pressly/goose/v3/cmd/goose@$(GOOSE_VERSION)
 	go install google.golang.org/protobuf/cmd/protoc-gen-go@$(PROTOC_GEN_GO_VERSION)
 	go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@$(PROTOC_GEN_GO_GRPC_VERSION)
@@ -56,10 +57,7 @@ migrate-status:
 	goose -dir migrations postgres "$(POSTGRES_DSN)" status
 
 proto:
-	protoc \
-		-I api/proto \
-		--go_out=. \
-		--go_opt=module=github.com/tbikbulatov/go-pulseops \
-		--go-grpc_out=. \
-		--go-grpc_opt=module=github.com/tbikbulatov/go-pulseops \
-		$(PROTO_SRC)
+	buf generate
+
+proto-lint:
+	buf lint

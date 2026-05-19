@@ -6,6 +6,7 @@ import (
 	incidentv1 "github.com/tbikbulatov/go-pulseops/gen/incident/v1"
 	"github.com/tbikbulatov/go-pulseops/internal/incident/domain"
 	"github.com/tbikbulatov/go-pulseops/internal/incident/query"
+	"github.com/tbikbulatov/go-pulseops/internal/incident/usecase/manageincident"
 )
 
 type QueryService interface {
@@ -53,4 +54,63 @@ func (s *IncidentQueryServer) ListIncidents(
 	}
 
 	return &incidentv1.ListIncidentsResponse{Incidents: items}, nil
+}
+
+type AcknowledgeUsecase interface {
+	Handle(ctx context.Context, c manageincident.AcknowledgeCommand) error
+}
+
+type ResolveUsecase interface {
+	Handle(ctx context.Context, c manageincident.ResolveCommand) error
+}
+
+type IncidentCommandService struct {
+	incidentv1.UnimplementedIncidentCommandServiceServer
+	acknowledgeUC AcknowledgeUsecase
+	resolveUC     ResolveUsecase
+}
+
+func NewIncidentCommandService(
+	acknowledgeUC AcknowledgeUsecase,
+	resolveUC ResolveUsecase,
+) *IncidentCommandService {
+	return &IncidentCommandService{
+		acknowledgeUC: acknowledgeUC,
+		resolveUC:     resolveUC,
+	}
+}
+
+func (s *IncidentCommandService) AcknowledgeIncident(
+	ctx context.Context,
+	req *incidentv1.AcknowledgeIncidentRequest,
+) (*incidentv1.AcknowledgeIncidentResponse, error) {
+	err := s.acknowledgeUC.Handle(ctx, manageincident.AcknowledgeCommand{
+		IncidentID:     req.GetIncidentId(),
+		CommandID:      req.GetCommandId(),
+		Actor:          req.GetActor(),
+		ExpectedStatus: req.GetExpectedStatus(),
+	})
+	if err != nil {
+		return nil, mapError(err)
+	}
+
+	return &incidentv1.AcknowledgeIncidentResponse{Success: true}, nil
+}
+
+func (s *IncidentCommandService) ResolveIncident(
+	ctx context.Context,
+	req *incidentv1.ResolveIncidentRequest,
+) (*incidentv1.ResolveIncidentResponse, error) {
+	err := s.resolveUC.Handle(ctx, manageincident.ResolveCommand{
+		IncidentID:     req.GetIncidentId(),
+		CommandID:      req.GetCommandId(),
+		Actor:          req.GetActor(),
+		Reason:         req.GetReason(),
+		ExpectedStatus: req.GetExpectedStatus(),
+	})
+	if err != nil {
+		return nil, mapError(err)
+	}
+
+	return &incidentv1.ResolveIncidentResponse{Success: true}, nil
 }

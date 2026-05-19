@@ -41,4 +41,5 @@ message Incident {
   google.protobuf.Timestamp last_seen_at = 9;
   google.protobuf.Timestamp created_at = 10;
   google.protobuf.Timestamp updated_at = 11;
+  int32 version = 12;
 }

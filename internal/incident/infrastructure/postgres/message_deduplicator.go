@@ -17,9 +17,9 @@ func NewMessageDeduplicator(db *gorm.DB) *MessageDeduplicator {
 	return &MessageDeduplicator{db: db}
 }
 
-func (d *MessageDeduplicator) TryStartProcessing(ctx context.Context, consumerName string, messageID string) (bool, error) {
+func (d *MessageDeduplicator) TryStartProcessing(ctx context.Context, scope string, messageID string) (bool, error) {
 	model := ProcessedMessageModel{
-		ConsumerName: consumerName,
+		ConsumerName: scope,
 		MessageID:    messageID,
 		ProcessedAt:  time.Now(),
 	}

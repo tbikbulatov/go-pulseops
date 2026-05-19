@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package pulseops.incident.v1;
+
+option go_package = "github.com/tbikbulatov/go-pulseops/gen/incident/v1;incidentv1";
+
+service IncidentCommandService {
+  rpc AcknowledgeIncident(AcknowledgeIncidentRequest) returns (AcknowledgeIncidentResponse);
+  rpc ResolveIncident(ResolveIncidentRequest) returns (ResolveIncidentResponse);
+}
+
+message AcknowledgeIncidentRequest {
+  string incident_id = 1;
+  string command_id = 2;
+  string actor = 3;
+  string expected_status = 4;
+}
+
+message AcknowledgeIncidentResponse {
+  bool success = 1;
+}
+
+message ResolveIncidentRequest {
+  string incident_id = 1;
+  string command_id = 2;
+  string actor = 3;
+  string reason = 4;
+  string expected_status = 5;
+}
+
+message ResolveIncidentResponse {
+  bool success = 1;
+}

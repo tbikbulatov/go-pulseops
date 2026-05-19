@@ -1,16 +1,10 @@
 package domain
 
 import (
-	"errors"
 	"time"
 
 	alertdomain "github.com/tbikbulatov/go-pulseops/internal/alert/domain"
 	"github.com/tbikbulatov/go-pulseops/internal/shared/domain/valueobject"
-)
-
-var (
-	ErrIncidentResolved        = errors.New("incident is resolved")
-	ErrIncidentAlreadyResolved = errors.New("incident is already resolved")
 )
 
 type Incident struct {
@@ -21,6 +15,7 @@ type Incident struct {
 	Status      Status
 	DedupKey    string
 	AlertCount  int
+	Version     int
 	FirstSeenAt time.Time
 	LastSeenAt  time.Time
 	CreatedAt   time.Time
@@ -40,6 +35,7 @@ func NewFromAlert(alert alertdomain.Alert) Incident {
 		Status:      StatusOpen,
 		DedupKey:    alert.DedupKey,
 		AlertCount:  1,
+		Version:     1,
 		FirstSeenAt: now,
 		LastSeenAt:  now,
 		CreatedAt:   now,
@@ -58,6 +54,7 @@ func (i *Incident) ApplyAlert(alert alertdomain.Alert) error {
 	}
 
 	i.AlertCount++
+	i.Version++
 	i.LastSeenAt = seenAt
 	i.UpdatedAt = seenAt
 
@@ -72,11 +69,15 @@ func (i *Incident) Acknowledge(at time.Time) error {
 	if i.Status == StatusResolved {
 		return ErrIncidentResolved
 	}
+	if i.Status == StatusAcknowledged {
+		return ErrIncidentAlreadyAcknowledged
+	}
 	if at.IsZero() {
 		at = time.Now()
 	}
 
 	i.Status = StatusAcknowledged
+	i.Version++
 	i.UpdatedAt = at
 	return nil
 }
@@ -90,6 +91,7 @@ func (i *Incident) Resolve(at time.Time) error {
 	}
 
 	i.Status = StatusResolved
+	i.Version++
 	i.UpdatedAt = at
 	return nil
 }
