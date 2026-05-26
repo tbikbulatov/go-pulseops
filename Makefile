@@ -1,4 +1,4 @@
-.PHONY: infra-up infra-down run-api run-worker run-grpc run-realtime test migrate-up migrate-down migrate-status kafka-ping run-publish-alerts-once run-incident-processor install-tools proto proto-lint
+.PHONY: infra-up infra-down run-api run-worker run-grpc run-realtime test migrate-up migrate-down migrate-status kafka-ping run-publish-alerts-once run-incident-processor install-tools proto proto-lint observability-up observability-down
 
 ifneq (,$(wildcard .env))
 include .env
@@ -61,3 +61,9 @@ proto:
 
 proto-lint:
 	buf lint
+
+observability-up:
+	docker compose --profile observability up -d prometheus
+
+observability-down:
+	docker compose stop prometheus

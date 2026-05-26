@@ -43,6 +43,8 @@ func loadDotenv() error {
 }
 
 type AppConfig struct {
+	Env      string `env:"APP_ENV" envDefault:"local"`
+	LogLevel string `env:"APP_LOG_LEVEL" envDefault:"info"`
 	Port     string `env:"APP_HTTP_PORT,required"`
 	GRPCPort string `env:"APP_GRPC_PORT" envDefault:"50051"`
 }

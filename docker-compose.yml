@@ -55,6 +55,18 @@ services:
       timeout: 5s
       retries: 12
 
+  prometheus:
+    image: prom/prometheus:v3.7.3
+    container_name: pulseops-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./deploy/observability/prometheus.yml:/etc/prometheus/prometheus.yml
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+    profiles:
+      - observability
+
 volumes:
   postgres_data:
   redpanda_data:
